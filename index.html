@@ -141,9 +141,11 @@
   .bring-chip.other{grid-column:1 / -1;text-align:center}
 
   /* Multi-select chips with notes */
-  .chip-wrapper{border:1.5px solid var(--card-line);border-radius:11px;background:var(--card-bg);padding:11px 12px;grid-column:1 / -1;margin-bottom:10px}
+  .chip-wrapper{border:1.5px solid var(--card-line);border-radius:11px;background:var(--card-bg);padding:11px 12px;margin-bottom:10px}
   .chip-wrapper-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
   .chip-wrapper-item{font-weight:700;color:#241a0c;font-size:14px}
+  .chip-name-input{flex:1;border:1px solid #cdbf9f;border-radius:8px;background:#fff;color:#241a0c;font-family:var(--body);font-size:14px;font-weight:700;padding:6px 9px;margin-right:8px}
+  .chip-name-input:focus{outline:none;border-color:var(--rust);box-shadow:0 0 0 3px rgba(216,68,42,.16)}
   .chip-wrapper-remove{background:none;border:none;color:#8a7757;cursor:pointer;font-size:14px;padding:0;margin:0}
   .chip-wrapper-remove:hover{color:#c23a22}
   .chip-notes{width:100%;border:1px solid #cdbf9f;border-radius:8px;background:#fff;color:#241a0c;font-family:var(--body);font-size:13px;padding:7px 10px;resize:vertical;min-height:40px}
@@ -279,6 +281,8 @@
         </div>
       </div>
 
+      <div id="noBlock" class="note-box" hidden style="background:rgba(216,68,42,.12);border-color:rgba(216,68,42,.4)">😔 Sorry you'll miss it! Hit send below so we know — a "no" still helps us plan, and we'll catch you next time.</div>
+
       <div id="yesBlock" hidden>
         <div class="field">
           <label class="q">Bringing guests? <span class="hint">Everyone's welcome — how many extra people are you bringing?</span></label>
@@ -289,7 +293,7 @@
           </div><span class="stepper-label" id="guests-label">additional guests</span>
         </div>
 
-        <div class="field" id="dogField">
+        <div class="field" id="dogField" hidden>
           <label class="q">Bringing a pup? <span class="hint">Ours are sweet but a touch leash-reactive — a heads up helps.</span></label>
           <div class="toggle">
             <div class="opt" id="dogYes" role="button" tabindex="0" aria-pressed="false">Yes, one joins</div>
@@ -301,18 +305,16 @@
         <div class="note-box">🙌 <strong>Totally optional.</strong> We've got the mains, cake, and plates. If you want to bring something, grab an open slot below so nothing doubles up.</div>
 
         <div class="field">
-          <label class="q">Offer to bring something?</label>
+          <label class="q">Offer to bring something? <span class="hint">Pick as many as you like</span></label>
           <div id="chips-new"></div>
-          <div id="custom-wrap-new" hidden style="margin-top:10px"><input type="text" id="custom-new" placeholder="What will you bring?" /></div>
-          <div id="details-wrap-new" hidden style="margin-top:10px">
-            <input type="text" id="details-new" placeholder="Add a note — e.g. serves 10, gluten-free" />
-          </div>
+          <input type="hidden" id="custom-new" />
+          <input type="hidden" id="details-new" />
         </div>
       </div>
 
       <div id="bringing-summary-new" style="display:none;margin-top:18px;margin-bottom:14px">
         <label class="q" style="margin-bottom:10px">Things you're bringing:</label>
-        <div id="bringing-list-new" style="background:rgba(0,0,0,.16);border:1px solid var(--line);border-radius:11px;padding:12px;font-size:13.5px;color:var(--cream);line-height:1.6"></div>
+        <div id="bringing-list-new"></div>
       </div>
 
       <button class="send" id="submit-btn" onclick="submitRSVP()">Send RSVP</button>
@@ -335,15 +337,15 @@
       </div>
 
       <div class="field">
-        <label class="q">Change what you're bringing?</label>
+        <label class="q">What are you bringing? <span class="hint">Pick as many as you like</span></label>
         <div id="chips-update"></div>
-        <div id="custom-wrap-update" hidden style="margin-top:10px"><input type="text" id="custom-update" placeholder="What will you bring?" /></div>
-        <div id="details-wrap-update" hidden style="margin-top:10px"><input type="text" id="details-update" placeholder="Add a note (optional)" /></div>
+        <input type="hidden" id="custom-update" />
+        <input type="hidden" id="details-update" />
       </div>
 
       <div id="bringing-summary-update" style="display:none;margin-top:18px;margin-bottom:14px">
         <label class="q" style="margin-bottom:10px">Things you're bringing:</label>
-        <div id="bringing-list-update" style="background:rgba(0,0,0,.16);border:1px solid var(--line);border-radius:11px;padding:12px;font-size:13.5px;color:var(--cream);line-height:1.6"></div>
+        <div id="bringing-list-update"></div>
       </div>
 
       <div class="status" id="update-status" style="color:#6a5636"></div>
@@ -481,9 +483,11 @@
 
   function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   function getItemCount(bringing){
-    // count how many RSVPs have picked this exact item
-    var demoCount = demoRows.filter(function(r){ return r.bringing===bringing && r.attending==='Yes'; }).length;
-    return demoCount;
+    // count how many attending RSVPs include this exact item (within their combined list)
+    return demoRows.filter(function(r){
+      if(r.attending!=='Yes') return false;
+      return parseBringing(r.bringing).indexOf(bringing) >= 0;
+    }).length;
   }
   function isItemFull(bringing, max){
     if(!max) return false;
@@ -516,7 +520,7 @@
     });
     html += '<div class="chip-grid"><button type="button" class="bring-chip other" id="chip-other-'+ctx+'" data-cat="Other" data-val="__other__" onclick="toggleChip(this,\''+ctx+'\')">✍️ Something else…</button></div>';
     $('chips-'+ctx).innerHTML = html;
-    renderBringSummary(ctx);
+    renderChipWrappers(ctx);
   }
 
   var selectedItems = { 'new':{}, 'update':{} };
@@ -554,70 +558,47 @@
   }
 
   function renderChipWrappers(ctx){
-    var container = $('chips-'+ctx);
-    if(!container) return;
-    var wrappers = container.querySelectorAll('.chip-wrapper');
-    wrappers.forEach(function(w){ w.remove(); });
-    Object.keys(selectedItems[ctx]).forEach(function(itemVal){
-      var chipBtn = container.querySelector('[data-val="'+itemVal+'"]');
-      if(chipBtn){
-        var itemName = itemVal;
-        if(itemVal !== '__other__'){
-          itemName = chipBtn.textContent.replace(' (full)', '').trim();
-        } else {
-          itemName = $('custom-'+ctx).value || 'Something else';
-        }
-        var wrapper = document.createElement('div');
-        wrapper.className = 'chip-wrapper';
-        wrapper.innerHTML = '<div class="chip-wrapper-header"><span class="chip-wrapper-item">'+escHtml(itemName)+'</span><button type="button" class="chip-wrapper-remove">✕</button></div><textarea class="chip-notes" placeholder="Add a note..."></textarea>';
-        var removeBtn = wrapper.querySelector('.chip-wrapper-remove');
-        removeBtn.onclick = function(e){
-          e.preventDefault();
-          toggleChip(chipBtn, ctx);
-        };
-        var notesField = wrapper.querySelector('.chip-notes');
-        notesField.value = selectedItems[ctx][itemVal] || '';
-        notesField.addEventListener('change', function(){
-          selectedItems[ctx][itemVal] = this.value;
-          renderBringSummary(ctx);
-        });
-        notesField.addEventListener('input', function(){
-          selectedItems[ctx][itemVal] = this.value;
-          renderBringSummary(ctx);
-        });
-        container.insertBefore(wrapper, container.firstChild);
-      }
-    });
-    renderBringSummary(ctx);
-  }
-
-  function renderBringSummary(ctx){
-    var summaryDiv = $('bringing-summary-'+ctx);
+    var chipContainer = $('chips-'+ctx);
     var listDiv = $('bringing-list-'+ctx);
-    if(!summaryDiv || !listDiv) return;
+    var summaryDiv = $('bringing-summary-'+ctx);
+    if(!chipContainer || !listDiv || !summaryDiv) return;
+
+    // clear the editable boxes
+    listDiv.innerHTML = '';
+
     var itemVals = Object.keys(selectedItems[ctx]);
-    if(itemVals.length === 0){
-      summaryDiv.style.display = 'none';
-      return;
-    }
+    if(itemVals.length === 0){ summaryDiv.style.display = 'none'; return; }
     summaryDiv.style.display = 'block';
-    var html = '';
+
     itemVals.forEach(function(itemVal){
-      var chipBtn = $('chips-'+ctx).querySelector('[data-val="'+itemVal+'"]');
-      var itemName = itemVal;
-      if(itemVal !== '__other__' && chipBtn){
-        itemName = chipBtn.textContent.replace(' (full)', '').trim();
-      } else if(itemVal === '__other__'){
-        itemName = $('custom-'+ctx).value || 'Something else';
+      var chipBtn = chipContainer.querySelector('[data-val="'+itemVal+'"]');
+      if(!chipBtn) return;
+      var isOther = (itemVal === '__other__');
+      var itemName = isOther ? ($('custom-'+ctx).value || '') : chipBtn.textContent.replace(' (full)', '').trim();
+      var wrapper = document.createElement('div');
+      wrapper.className = 'chip-wrapper';
+
+      var headerLeft = isOther
+        ? '<input type="text" class="chip-name-input" placeholder="What are you bringing?" value="'+escHtml(itemName)+'" />'
+        : '<span class="chip-wrapper-item">'+escHtml(itemName)+'</span>';
+      wrapper.innerHTML = '<div class="chip-wrapper-header">'+headerLeft+'<button type="button" class="chip-wrapper-remove" aria-label="Remove">✕</button></div><textarea class="chip-notes" placeholder="Add a note — e.g. serves 10, gluten-free"></textarea>';
+
+      var removeBtn = wrapper.querySelector('.chip-wrapper-remove');
+      removeBtn.onclick = function(e){ e.preventDefault(); toggleChip(chipBtn, ctx); };
+
+      if(isOther){
+        var nameInput = wrapper.querySelector('.chip-name-input');
+        nameInput.addEventListener('input', function(){ $('custom-'+ctx).value = this.value; });
       }
-      var notes = selectedItems[ctx][itemVal];
-      html += '<div style="margin-bottom:8px;"><strong style="color:var(--cream)">'+escHtml(itemName)+'</strong>';
-      if(notes){
-        html += '<div style="margin-top:3px;font-size:12.5px;color:var(--cream);font-style:italic;opacity:.85">"'+escHtml(notes)+'"</div>';
-      }
-      html += '</div>';
+
+      var notesField = wrapper.querySelector('.chip-notes');
+      notesField.value = selectedItems[ctx][itemVal] || '';
+      var saveNote = function(){ selectedItems[ctx][itemVal] = notesField.value; };
+      notesField.addEventListener('change', saveNote);
+      notesField.addEventListener('input', saveNote);
+
+      listDiv.appendChild(wrapper);
     });
-    listDiv.innerHTML = html;
   }
 
   function showConfirmModal(title, text){
@@ -648,49 +629,86 @@
     var wrap = $('chips-'+ctx);
     if(wrap) wrap.querySelectorAll('.bring-chip').forEach(function(c){c.classList.remove('selected');});
     selectedItems[ctx]={};
-    var wrappers = wrap.querySelectorAll('.chip-wrapper');
-    wrappers.forEach(function(w){ w.remove(); });
-    $('custom-wrap-'+ctx).hidden=true; $('details-wrap-'+ctx).hidden=true;
-    $('custom-'+ctx).value=''; $('details-'+ctx).value='';
+    if($('custom-'+ctx)) $('custom-'+ctx).value='';
+    if($('details-'+ctx)) $('details-'+ctx).value='';
+    renderChipWrappers(ctx);
   }
 
+  // Combine all selected items into a single bringing string + details string.
+  // bringing: "Salad / slaw; Dessert; Chips & dip"
+  // details:  "Salad / slaw: serves 10 | Dessert: gluten-free"
   function getContribution(ctx){
     var itemVals = Object.keys(selectedItems[ctx]);
     if(itemVals.length===0) return { category:'', bringing:'', details:'' };
-    var itemVal = itemVals[0];
-    var chip = $('chips-'+ctx).querySelector('[data-val="'+itemVal+'"]');
-    if(!chip) return { category:'', bringing:'', details:'' };
-    var details = selectedItems[ctx][itemVal] || '';
-    if(itemVal === '__other__'){
-      return { category:'Other', bringing:$('custom-'+ctx).value.trim(), details:details };
-    }
-    return { category:chip.getAttribute('data-cat'), bringing:itemVal, details:details };
+    var names=[], notes=[], cats=[];
+    itemVals.forEach(function(itemVal){
+      var name, cat;
+      if(itemVal === '__other__'){
+        name = $('custom-'+ctx).value.trim().replace(/[;|]/g,',');
+        cat = 'Other';
+      } else {
+        var chip = $('chips-'+ctx).querySelector('[data-val="'+itemVal+'"]');
+        name = itemVal;
+        cat = chip ? chip.getAttribute('data-cat') : '';
+      }
+      if(!name) return;
+      names.push(name);
+      if(cats.indexOf(cat)<0) cats.push(cat);
+      var note = (selectedItems[ctx][itemVal]||'').trim().replace(/\|/g,'/');
+      if(note) notes.push(name+': '+note);
+    });
+    return {
+      category: cats.join('; '),
+      bringing: names.join('; '),
+      details: notes.join(' | ')
+    };
+  }
+
+  // Parse a stored bringing string back into an array of item names.
+  function parseBringing(bringing){
+    if(!bringing) return [];
+    return bringing.split(';').map(function(s){ return s.trim(); }).filter(Boolean);
+  }
+  // Parse a stored details string back into {itemName: note}.
+  function parseDetails(details){
+    var map={};
+    if(!details) return map;
+    details.split('|').forEach(function(chunk){
+      var idx = chunk.indexOf(':');
+      if(idx>0){
+        var k=chunk.slice(0,idx).trim(), v=chunk.slice(idx+1).trim();
+        if(k) map[k]=v;
+      }
+    });
+    return map;
   }
 
   function preselect(ctx, category, bringing, details){
     resetChips(ctx);
     if(!bringing) return;
-    var chips = $('chips-'+ctx).querySelectorAll('.bring-chip');
-    var matched = false;
-    chips.forEach(function(c){ 
-      if(c.getAttribute('data-val')===bringing && !c.classList.contains('full')){ 
-        selectedItems[ctx][bringing] = details||'';
-        c.classList.add('selected');
-        matched = true; 
-      } 
+    var items = parseBringing(bringing);
+    var noteMap = parseDetails(details);
+    items.forEach(function(itemName){
+      var chip = null;
+      var chips = $('chips-'+ctx).querySelectorAll('.bring-chip');
+      chips.forEach(function(c){ if(c.getAttribute('data-val')===itemName && !c.classList.contains('full')) chip=c; });
+      if(chip){
+        selectedItems[ctx][itemName] = noteMap[itemName]||'';
+        chip.classList.add('selected');
+      } else {
+        // unknown item -> treat as "other"; only one custom slot, so last wins
+        var other=$('chip-other-'+ctx);
+        selectedItems[ctx]['__other__'] = noteMap[itemName]||'';
+        other.classList.add('selected');
+        $('custom-'+ctx).value=itemName;
+      }
     });
-    if(!matched){
-      var other=$('chip-other-'+ctx);
-      selectedItems[ctx]['__other__'] = details||'';
-      other.classList.add('selected');
-      $('custom-wrap-'+ctx).hidden=false; $('custom-'+ctx).value=bringing;
-    }
     renderChipWrappers(ctx);
   }
 
   // ---- attending + dog toggles ----
   var attending=null, dogState=null;
-  function setAttend(v){ attending=v; $('optYes').setAttribute('aria-pressed',v==='yes'); $('optNo').setAttribute('aria-pressed',v==='no'); $('yesBlock').hidden=(v!=='yes'); }
+  function setAttend(v){ attending=v; $('optYes').setAttribute('aria-pressed',v==='yes'); $('optNo').setAttribute('aria-pressed',v==='no'); $('yesBlock').hidden=(v!=='yes'); if($('noBlock')) $('noBlock').hidden=(v!=='no'); }
   $('optYes').addEventListener('click',function(){setAttend('yes');});
   $('optNo').addEventListener('click',function(){setAttend('no');});
   if($('dogYes')){
@@ -701,7 +719,7 @@
 
   // ---- stepper (additional guests, 0-based) ----
   function getGuests(id){ return Math.max(0, parseInt($(id).textContent,10)||0); }
-  function setGuests(id,n){ n=Math.max(0,Math.min(29,n)); $(id).textContent=n; var lbl=id==='guests-val'?'guests-label':'update-guests-label'; if($(lbl)) $(lbl).textContent = (n===1?'additional guest':'additional guests'); }
+  function setGuests(id,n){ n=Math.max(0,Math.min(10,n)); $(id).textContent=n; var lbl=id==='guests-val'?'guests-label':'update-guests-label'; if($(lbl)) $(lbl).textContent = (n===1?'additional guest':'additional guests'); }
   function adjustGuests(d,id){ setGuests(id, getGuests(id)+d); }
 
   // ---- claimed list ----
@@ -718,17 +736,33 @@
   function row_(name, category, thing, note, isMine){
     var badge = isMine ? '<span class="my-badge">yours</span>' : '';
     var who = isMine ? 'You' : escHtml(String(name).split(' ')[0]);
-    var noteHtml = note ? '<div class="note">"'+escHtml(note)+'"</div>' : '';
-    var fullBit = '';
-    for(var i=0;i<CATEGORIES.length;i++){var cat=CATEGORIES[i];if(cat.label===category){for(var j=0;j<cat.items.length;j++){var itm=cat.items[j];var itemName=typeof itm==='string'?itm:itm.name;if(itemName===thing&&itm.max&&getItemCount(thing)>=itm.max)fullBit=' <span style="color:var(--cream-dim);font-size:12px">(full)</span>';}}}
-    return '<div class="claimed-item"><div class="claimed-row"><span class="person">'+who+'</span><span class="arrow">→</span><span class="thing">'+catIcon(category)+' '+escHtml(thing)+fullBit+'</span>'+badge+'</div>'+noteHtml+'</div>';
+    var items = parseBringing(thing);
+    var noteMap = parseDetails(note);
+    // If details didn't parse into per-item notes (legacy single note), attach to first item.
+    var hasParsedNotes = Object.keys(noteMap).length>0;
+    var rows = items.map(function(itemName, idx){
+      var n = hasParsedNotes ? (noteMap[itemName]||'') : (idx===0 ? (note||'') : '');
+      var noteHtml = n ? '<div class="note">"'+escHtml(n)+'"</div>' : '';
+      var fullBit = itemFullBit(itemName);
+      return '<div class="claimed-row"><span class="person">'+(idx===0?who:'')+'</span><span class="arrow">'+(idx===0?'→':'')+'</span><span class="thing">'+catIcon(catForItem(itemName)||category)+' '+escHtml(itemName)+fullBit+'</span>'+(idx===0?badge:'')+'</div>'+noteHtml;
+    }).join('');
+    return '<div class="claimed-item">'+rows+'</div>';
+  }
+  function catForItem(itemName){
+    for(var i=0;i<CATEGORIES.length;i++){var cat=CATEGORIES[i];for(var j=0;j<cat.items.length;j++){var itm=cat.items[j];var nm=typeof itm==='string'?itm:itm.name;if(nm===itemName)return cat.label;}}
+    return '';
+  }
+  function itemFullBit(itemName){
+    for(var i=0;i<CATEGORIES.length;i++){var cat=CATEGORIES[i];for(var j=0;j<cat.items.length;j++){var itm=cat.items[j];var nm=typeof itm==='string'?itm:itm.name;if(nm===itemName&&itm.max&&getItemCount(itemName)>=itm.max)return ' <span style="color:var(--cream-dim);font-size:12px">(full)</span>';}}
+    return '';
   }
 
   // ---- submit ----
+  function isValidEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
   async function submitRSVP(){
     var name=$('name').value.trim(), email=$('email').value.trim().toLowerCase();
     if(!name){ $('status').textContent='Add your name first.'; return; }
-    if(!email||email.indexOf('@')<0){ $('status').textContent='Add a valid email.'; return; }
+    if(!isValidEmail(email)){ $('status').textContent='That email doesn’t look right — double-check it so you can edit later.'; return; }
     if(!attending){ $('status').textContent='Let us know if you can make it.'; return; }
 
     var c = attending==='yes' ? getContribution('new') : {category:'',bringing:'',details:''};
@@ -750,7 +784,7 @@
   // ---- returning ----
   async function lookupByEmail(){
     var email=$('lookup-email').value.trim().toLowerCase();
-    if(!email){ $('lookup-error').textContent='Enter your email.'; return; }
+    if(!isValidEmail(email)){ $('lookup-error').textContent='Enter the email you used to RSVP.'; return; }
     $('lookup-btn').disabled=true;
     try{
       var res=await apiPost({action:'lookupEmail', email:email});
@@ -761,8 +795,9 @@
   function loadUpdate(r){
     showPanel('update-card'); $('update-btn').disabled=false;
     $('update-greeting').textContent = 'Welcome back, '+String(r.name).split(' ')[0]+'!';
-    $('update-current').innerHTML = r.bringing
-      ? 'Currently bringing: <strong>'+escHtml(r.bringing)+'</strong>'+(r.details?' — '+escHtml(r.details):'')
+    var items = parseBringing(r.bringing);
+    $('update-current').innerHTML = items.length
+      ? 'Currently bringing: <strong>'+escHtml(items.join(', '))+'</strong>'
       : 'No item on file — still optional!';
     setGuests('update-guests-val', Math.max(0,(parseInt(r.headcount,10)||1)-1));
     buildChips('update'); preselect('update', r.category, r.bringing, r.details);
@@ -790,7 +825,13 @@
       $('confirm-title').textContent = isUpdate ? 'Updated!' : "You're on the list!";
       var msg = 'See you '+EVENT.date+', '+escHtml(first)+'.';
       if(p.headcount>1) msg += ' Party of <strong>'+p.headcount+'</strong> — locked in for the food count.';
-      if(p.bringing) msg += ' You’ve got <strong>'+escHtml(p.bringing)+'</strong> covered — thank you!';
+      var items = parseBringing(p.bringing);
+      if(items.length===1){
+        msg += ' You’ve got <strong>'+escHtml(items[0])+'</strong> covered — thank you!';
+      } else if(items.length>1){
+        var last = items.pop();
+        msg += ' You’ve got <strong>'+escHtml(items.join(', '))+'</strong> and <strong>'+escHtml(last)+'</strong> covered — thank you!';
+      }
       $('confirm-body').innerHTML = msg;
       $('cal-link').style.display='inline-block';
       var blob=new Blob([genICS(p)],{type:'text/calendar;charset=utf-8'});
@@ -830,7 +871,15 @@
   // ---- init ----
   (function init(){
     setGuests('guests-val',0); buildChips('new');
+    if(EVENT.guestDogs && $('dogField')) $('dogField').hidden=false;
     renderClaimed();
+    // Live-update the "other" item name in wrappers + summary as the user types.
+    ['new','update'].forEach(function(ctx){
+      var ci = $('custom-'+ctx);
+      if(ci) ci.addEventListener('input', function(){
+        if(selectedItems[ctx]['__other__'] !== undefined){ renderChipWrappers(ctx); }
+      });
+    });
     var my=getMyRSVP();
     if(my && my.email){ buildChips('update'); loadUpdate(my); } else { showPanel('chooser-card'); }
   })();
