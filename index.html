@@ -180,13 +180,10 @@
 
   <!-- ======================= MAIN ======================= -->
   <div class="wrap" id="main">
-    <p class="eyebrow" id="eyebrow"></p>
+    <h1 style="font-family:var(--disp);font-weight:800;font-size:clamp(34px,9vw,54px);line-height:.95;text-align:center;margin:0 0 16px;color:var(--cream)">Get in Loser, we're going to our 8th birthday!</h1>
 
     <div class="hero">
       <img src="hero-car.jpg" alt="Edgar and Wylie ready for adventure" />
-      <div class="hero-overlay">
-        <h1 class="hero-title">Get in Loser, we're going to our 8th birthday!</h1>
-      </div>
     </div>
     <p class="blurb" id="blurb"></p>
     <div class="chips" id="metaChips"></div>
@@ -201,13 +198,18 @@
         <img src="outdoor-tent.jpg" alt="Wylie cozy in the tent" />
       </div>
       <div class="outdoor-text">
-        <strong>Outside when weather's good, but we've got room for indoor bois.</strong><br><br>We'll be outside most of the evening — World Cup, food, campfire if it cools down. But if you're more of an indoor person (like Wylie here), we've got plenty of patio cover and indoor space. Come as you are.
+        <strong>Outside when weather's good, but we've got room for indoor bois.</strong><br><br>We'll be outside most of the evening — World Cup, food, campfire if it cools down. But if you're more of an indoor person (like Wylie here), we've got plenty of indoor space. Come as you are.
       </div>
     </div>
 
     <div class="panel" id="providedPanel">
       <h3>On us</h3>
       <div class="provided-list" id="providedList"></div>
+    </div>
+
+    <div class="panel">
+      <h3>About the meat</h3>
+      <p style="color:var(--cream-dim);font-size:14px;margin:0">Could be pulled pork, could be burgers and brats — I'm still figuring out logistics. But there will definitely be meat, cooked on the grill, for everyone.</p>
     </div>
 
     <div class="panel">
@@ -374,7 +376,7 @@
     address:"", organizerName:"Joe", organizerEmail:"joe@example.com"  // TODO
   };
   /* 3) What you're covering (edit freely). */
-  const PROVIDES = ["🎂 Cake & candles","🍖 Mains off the grill","🍽️ Plates, cups & utensils","🐾 Two very good dogs","🍺 Large format beers (bombers & 750ml)","🥃 White Rum, Vodka, Gin, maybe Bourbon","🥤 A top notch Vitamix blender"];
+  const PROVIDES = ["🎂 Cake & candles","🍖 Meat off the grill","🍽️ Plates, cups & utensils","🐾 Two very good dogs","🍺 Large format beers (bombers & 750ml)","🥃 White Rum, Vodka, Gin, maybe Bourbon","🥤 A top notch Vitamix blender"];
   /* 4) Item categories guests can sign up for. Items can be {name, max: N} to cap volunteers. */
   const CATEGORIES = [
     { label:"Sides & snacks", icon:"🥗", items:[
@@ -403,7 +405,6 @@
   const MY_KEY = 'bday-2026-my-rsvp';
 
   // ---- paint event ----
-  $('eyebrow').textContent = EVENT.eyebrow;
   $('blurb').textContent = EVENT.blurb;
   (function(){
     var c = [{t:EVENT.date},{t:EVENT.time}, EVENT.mapsUrl?{t:EVENT.place,h:EVENT.mapsUrl}:{t:EVENT.place}];
