@@ -237,16 +237,6 @@
       <p style="color:var(--cream-dim);font-size:14px;margin:0">The large format beers — bombers and 750s — are quite old and should just be consumed. We'll get a bunch cold and have a good time. If one isn't good, oh well, we'll pour it out and move on.</p>
     </div>
 
-    <div style="margin:28px 0 20px">
-      <p style="text-align:center;color:var(--cream-dim);font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px">A bit of what we do</p>
-      <div class="photo-grid">
-        <img src="grid-cozy.jpg" alt="Edgar and Wylie relaxing together at home" />
-        <img src="grid-hiking.jpg" alt="You, Kat, Edgar, and Wylie at a scenic overlook" />
-        <img src="grid-swimming.jpg" alt="Edgar and Wylie swimming in life vests" />
-        <img src="grid-beach.jpg" alt="Edgar at the beach, water in the distance" />
-      </div>
-    </div>
-
     <div class="panel">
       <h3>What people are bringing</h3>
       <div id="claimed-list"><div class="claimed-empty" id="empty-msg">Nothing claimed yet — be the first.</div></div>
@@ -322,7 +312,7 @@
 
       <div id="bringing-summary-new" style="display:none;margin-top:18px;margin-bottom:14px">
         <label class="q" style="margin-bottom:10px">Things you're bringing:</label>
-        <div id="bringing-list-new" style="background:rgba(0,0,0,.16);border:1px solid var(--line);border-radius:11px;padding:12px;font-size:13.5px;color:var(--cream-dim);line-height:1.6"></div>
+        <div id="bringing-list-new" style="background:rgba(0,0,0,.16);border:1px solid var(--line);border-radius:11px;padding:12px;font-size:13.5px;color:var(--cream);line-height:1.6"></div>
       </div>
 
       <button class="send" id="submit-btn" onclick="submitRSVP()">Send RSVP</button>
@@ -353,7 +343,7 @@
 
       <div id="bringing-summary-update" style="display:none;margin-top:18px;margin-bottom:14px">
         <label class="q" style="margin-bottom:10px">Things you're bringing:</label>
-        <div id="bringing-list-update" style="background:rgba(0,0,0,.16);border:1px solid var(--line);border-radius:11px;padding:12px;font-size:13.5px;color:var(--cream-dim);line-height:1.6"></div>
+        <div id="bringing-list-update" style="background:rgba(0,0,0,.16);border:1px solid var(--line);border-radius:11px;padding:12px;font-size:13.5px;color:var(--cream);line-height:1.6"></div>
       </div>
 
       <div class="status" id="update-status" style="color:#6a5636"></div>
@@ -371,6 +361,16 @@
         <div style="margin-top:14px"><a href="#" id="editLink" style="font-weight:700;text-decoration:none;color:#c23a22">Change my answer</a></div>
       </div>
     </section>
+
+    <div style="margin:28px 0 20px">
+      <p style="text-align:center;color:var(--cream-dim);font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px">Cute Dog Tax:</p>
+      <div class="photo-grid">
+        <img src="grid-cozy.jpg" alt="Edgar and Wylie relaxing together at home" />
+        <img src="grid-hiking.jpg" alt="You, Kat, Edgar, and Wylie at a scenic overlook" />
+        <img src="grid-swimming.jpg" alt="Edgar and Wylie swimming in life vests" />
+        <img src="grid-beach.jpg" alt="Edgar at the beach, water in the distance" />
+      </div>
+    </div>
 
     <footer><button class="host-link" onclick="showHost()">Host view</button></footer>
   </div>
@@ -613,7 +613,7 @@
       var notes = selectedItems[ctx][itemVal];
       html += '<div style="margin-bottom:8px;"><strong style="color:var(--cream)">'+escHtml(itemName)+'</strong>';
       if(notes){
-        html += '<div style="margin-top:3px;font-size:12.5px;color:var(--cream-dim);font-style:italic">"'+escHtml(notes)+'"</div>';
+        html += '<div style="margin-top:3px;font-size:12.5px;color:var(--cream);font-style:italic;opacity:.85">"'+escHtml(notes)+'"</div>';
       }
       html += '</div>';
     });
