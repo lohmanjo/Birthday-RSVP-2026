@@ -140,6 +140,25 @@
   .bring-chip.full:hover{border-color:var(--card-line);background:var(--card-bg)}
   .bring-chip.other{grid-column:1 / -1;text-align:center}
 
+  /* Multi-select chips with notes */
+  .chip-wrapper{border:1.5px solid var(--card-line);border-radius:11px;background:var(--card-bg);padding:11px 12px;grid-column:1 / -1;margin-bottom:10px}
+  .chip-wrapper-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .chip-wrapper-item{font-weight:700;color:#241a0c;font-size:14px}
+  .chip-wrapper-remove{background:none;border:none;color:#8a7757;cursor:pointer;font-size:14px;padding:0;margin:0}
+  .chip-wrapper-remove:hover{color:#c23a22}
+  .chip-notes{width:100%;border:1px solid #cdbf9f;border-radius:8px;background:#fff;color:#241a0c;font-family:var(--body);font-size:13px;padding:7px 10px;resize:vertical;min-height:40px}
+  .chip-notes:focus{outline:none;border-color:var(--rust);box-shadow:0 0 0 3px rgba(216,68,42,.16)}
+
+  /* Confirmation modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}
+  .modal-box{background:var(--cream);border-radius:16px;padding:24px;max-width:380px;box-shadow:var(--shadow)}
+  .modal-title{font-family:var(--disp);font-weight:800;font-size:20px;color:#241a0c;margin:0 0 12px}
+  .modal-text{font-size:14px;color:#5a4a33;margin:0 0 20px;line-height:1.6}
+  .modal-buttons{display:flex;gap:10px}
+  .modal-btn{flex:1;border:none;border-radius:10px;padding:11px;font-weight:700;cursor:pointer;font-family:var(--body);font-size:14px}
+  .modal-btn.cancel{background:#e0e0e0;color:#333}
+  .modal-btn.confirm{background:var(--rust);color:#fff}
+
   .send{width:100%;margin-top:8px;border:none;border-radius:13px;cursor:pointer;background:var(--rust);color:#fff;font-family:var(--disp);font-weight:800;font-size:18px;padding:15px;box-shadow:0 8px 20px rgba(216,68,42,.32)}
   .send:hover{transform:translateY(-1px)}
   .send:disabled{opacity:.6;transform:none;cursor:default}
@@ -191,6 +210,7 @@
     <div class="rsvp-alert">
       <div class="kicker">Yes <em>or</em> no — we need to hear from you</div>
       <p>This is a real headcount for real food. <strong>Not coming? Don't ghost us</strong> — tap "Can't make it" below so we buy the right amount and nobody goes hungry (and we're not eating potato salad for a week). A "no" still counts. Silence doesn't.</p>
+      <p style="margin-top:12px;margin-bottom:0">Can't decide yet? That's OK — give us your best guess now and you can always come back to change your answer if things change. We just need a starting point to plan around, even if you're not 100% sure.</p>
     </div>
 
     <div class="outdoor-section">
@@ -198,7 +218,7 @@
         <img src="outdoor-tent.jpg" alt="Wylie cozy in the tent" />
       </div>
       <div class="outdoor-text">
-        <strong>Outside when weather's good, but we've got room for indoor bois.</strong><br><br>We'll be outside most of the evening — World Cup, food, campfire if it cools down. But if you're more of an indoor person (like Wylie here), we've got plenty of indoor space. Come as you are.
+        <strong>Outside when weather's good, but we've got room for indoor bois.</strong><br><br>We'll be outside most of the evening — World Cup, food, campfire if it cools down. But if you're more of an indoor person (like Wylie here), we've got plenty of indoor space. Come as you are. Or don't. You could go all out. Or reinvent yourself. Life is a social construct.
       </div>
     </div>
 
@@ -214,7 +234,7 @@
 
     <div class="panel">
       <h3>About the beers</h3>
-      <p style="color:var(--cream-dim);font-size:14px;margin:0">The large format beers — bombers and 750s — are quite old and should just be consumed. We'll get a bunch cold and have a good time. If one isn't good, oh well, we'll pour it out and move on. Zero pressure on quality, maximum pressure on not wasting them.</p>
+      <p style="color:var(--cream-dim);font-size:14px;margin:0">The large format beers — bombers and 750s — are quite old and should just be consumed. We'll get a bunch cold and have a good time. If one isn't good, oh well, we'll pour it out and move on.</p>
     </div>
 
     <div style="margin:28px 0 20px">
@@ -300,6 +320,11 @@
         </div>
       </div>
 
+      <div id="bringing-summary-new" style="display:none;margin-top:18px;margin-bottom:14px">
+        <label class="q" style="margin-bottom:10px">Things you're bringing:</label>
+        <div id="bringing-list-new" style="background:rgba(0,0,0,.16);border:1px solid var(--line);border-radius:11px;padding:12px;font-size:13.5px;color:var(--cream-dim);line-height:1.6"></div>
+      </div>
+
       <button class="send" id="submit-btn" onclick="submitRSVP()">Send RSVP</button>
       <div class="status" id="status"></div>
     </section>
@@ -324,6 +349,11 @@
         <div id="chips-update"></div>
         <div id="custom-wrap-update" hidden style="margin-top:10px"><input type="text" id="custom-update" placeholder="What will you bring?" /></div>
         <div id="details-wrap-update" hidden style="margin-top:10px"><input type="text" id="details-update" placeholder="Add a note (optional)" /></div>
+      </div>
+
+      <div id="bringing-summary-update" style="display:none;margin-top:18px;margin-bottom:14px">
+        <label class="q" style="margin-bottom:10px">Things you're bringing:</label>
+        <div id="bringing-list-update" style="background:rgba(0,0,0,.16);border:1px solid var(--line);border-radius:11px;padding:12px;font-size:13.5px;color:var(--cream-dim);line-height:1.6"></div>
       </div>
 
       <div class="status" id="update-status" style="color:#6a5636"></div>
@@ -486,46 +516,176 @@
     });
     html += '<div class="chip-grid"><button type="button" class="bring-chip other" id="chip-other-'+ctx+'" data-cat="Other" data-val="__other__" onclick="toggleChip(this,\''+ctx+'\')">✍️ Something else…</button></div>';
     $('chips-'+ctx).innerHTML = html;
+    renderBringSummary(ctx);
   }
 
-  var selected = { 'new':null, 'update':null };
+  var selectedItems = { 'new':{}, 'update':{} };
+  var modalPending = null;
+
   function toggleChip(btn, ctx){
-    if(btn.classList.contains('full')) return; // can't pick full items
-    var prev = selected[ctx];
-    if(prev && prev!==btn) prev.classList.remove('selected');
-    btn.classList.toggle('selected');
-    selected[ctx] = btn.classList.contains('selected') ? btn : null;
-    var isOther = btn.id === 'chip-other-'+ctx;
-    $('custom-wrap-'+ctx).hidden = !(isOther && btn.classList.contains('selected'));
-    $('details-wrap-'+ctx).hidden = !selected[ctx];
-    if(isOther && btn.classList.contains('selected')) $('custom-'+ctx).focus();
+    if(btn.classList.contains('full')) return;
+    var itemVal = btn.getAttribute('data-val');
+    var isSelected = btn.classList.contains('selected');
+    
+    if(isSelected){
+      var hasNotes = selectedItems[ctx][itemVal] && selectedItems[ctx][itemVal].trim();
+      if(hasNotes){
+        modalPending = {ctx:ctx, itemVal:itemVal, btn:btn};
+        showConfirmModal('Delete this item?', 'You have notes for this item. Deselecting will delete them. Are you sure?');
+      } else {
+        removeItem(ctx, itemVal, btn);
+      }
+    } else {
+      addItem(ctx, itemVal, btn);
+    }
+    renderChipWrappers(ctx);
   }
+
+  function addItem(ctx, itemVal, btn){
+    if(!selectedItems[ctx][itemVal]){
+      selectedItems[ctx][itemVal] = '';
+    }
+    btn.classList.add('selected');
+  }
+
+  function removeItem(ctx, itemVal, btn){
+    delete selectedItems[ctx][itemVal];
+    btn.classList.remove('selected');
+  }
+
+  function renderChipWrappers(ctx){
+    var container = $('chips-'+ctx);
+    if(!container) return;
+    var wrappers = container.querySelectorAll('.chip-wrapper');
+    wrappers.forEach(function(w){ w.remove(); });
+    Object.keys(selectedItems[ctx]).forEach(function(itemVal){
+      var chipBtn = container.querySelector('[data-val="'+itemVal+'"]');
+      if(chipBtn){
+        var itemName = itemVal;
+        if(itemVal !== '__other__'){
+          itemName = chipBtn.textContent.replace(' (full)', '').trim();
+        } else {
+          itemName = $('custom-'+ctx).value || 'Something else';
+        }
+        var wrapper = document.createElement('div');
+        wrapper.className = 'chip-wrapper';
+        wrapper.innerHTML = '<div class="chip-wrapper-header"><span class="chip-wrapper-item">'+escHtml(itemName)+'</span><button type="button" class="chip-wrapper-remove">✕</button></div><textarea class="chip-notes" placeholder="Add a note..."></textarea>';
+        var removeBtn = wrapper.querySelector('.chip-wrapper-remove');
+        removeBtn.onclick = function(e){
+          e.preventDefault();
+          toggleChip(chipBtn, ctx);
+        };
+        var notesField = wrapper.querySelector('.chip-notes');
+        notesField.value = selectedItems[ctx][itemVal] || '';
+        notesField.addEventListener('change', function(){
+          selectedItems[ctx][itemVal] = this.value;
+          renderBringSummary(ctx);
+        });
+        notesField.addEventListener('input', function(){
+          selectedItems[ctx][itemVal] = this.value;
+          renderBringSummary(ctx);
+        });
+        container.insertBefore(wrapper, container.firstChild);
+      }
+    });
+    renderBringSummary(ctx);
+  }
+
+  function renderBringSummary(ctx){
+    var summaryDiv = $('bringing-summary-'+ctx);
+    var listDiv = $('bringing-list-'+ctx);
+    if(!summaryDiv || !listDiv) return;
+    var itemVals = Object.keys(selectedItems[ctx]);
+    if(itemVals.length === 0){
+      summaryDiv.style.display = 'none';
+      return;
+    }
+    summaryDiv.style.display = 'block';
+    var html = '';
+    itemVals.forEach(function(itemVal){
+      var chipBtn = $('chips-'+ctx).querySelector('[data-val="'+itemVal+'"]');
+      var itemName = itemVal;
+      if(itemVal !== '__other__' && chipBtn){
+        itemName = chipBtn.textContent.replace(' (full)', '').trim();
+      } else if(itemVal === '__other__'){
+        itemName = $('custom-'+ctx).value || 'Something else';
+      }
+      var notes = selectedItems[ctx][itemVal];
+      html += '<div style="margin-bottom:8px;"><strong style="color:var(--cream)">'+escHtml(itemName)+'</strong>';
+      if(notes){
+        html += '<div style="margin-top:3px;font-size:12.5px;color:var(--cream-dim);font-style:italic">"'+escHtml(notes)+'"</div>';
+      }
+      html += '</div>';
+    });
+    listDiv.innerHTML = html;
+  }
+
+  function showConfirmModal(title, text){
+    var overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.id = 'confirmModal';
+    overlay.innerHTML = '<div class="modal-box"><h3 class="modal-title">'+title+'</h3><p class="modal-text">'+text+'</p><div class="modal-buttons"><button class="modal-btn cancel" onclick="cancelModal()">Keep it</button><button class="modal-btn confirm" onclick="confirmModal()">Delete</button></div></div>';
+    document.body.appendChild(overlay);
+  }
+
+  function confirmModal(){
+    if(modalPending){
+      removeItem(modalPending.ctx, modalPending.itemVal, modalPending.btn);
+      renderChipWrappers(modalPending.ctx);
+      modalPending = null;
+    }
+    var modal = $('confirmModal');
+    if(modal) modal.remove();
+  }
+
+  function cancelModal(){
+    modalPending = null;
+    var modal = $('confirmModal');
+    if(modal) modal.remove();
+  }
+
   function resetChips(ctx){
     var wrap = $('chips-'+ctx);
     if(wrap) wrap.querySelectorAll('.bring-chip').forEach(function(c){c.classList.remove('selected');});
-    selected[ctx]=null;
+    selectedItems[ctx]={};
+    var wrappers = wrap.querySelectorAll('.chip-wrapper');
+    wrappers.forEach(function(w){ w.remove(); });
     $('custom-wrap-'+ctx).hidden=true; $('details-wrap-'+ctx).hidden=true;
     $('custom-'+ctx).value=''; $('details-'+ctx).value='';
   }
+
   function getContribution(ctx){
-    var chip = selected[ctx];
+    var itemVals = Object.keys(selectedItems[ctx]);
+    if(itemVals.length===0) return { category:'', bringing:'', details:'' };
+    var itemVal = itemVals[0];
+    var chip = $('chips-'+ctx).querySelector('[data-val="'+itemVal+'"]');
     if(!chip) return { category:'', bringing:'', details:'' };
-    var details = $('details-'+ctx).value.trim();
-    if(chip.id==='chip-other-'+ctx){
+    var details = selectedItems[ctx][itemVal] || '';
+    if(itemVal === '__other__'){
       return { category:'Other', bringing:$('custom-'+ctx).value.trim(), details:details };
     }
-    return { category:chip.getAttribute('data-cat'), bringing:chip.getAttribute('data-val'), details:details };
+    return { category:chip.getAttribute('data-cat'), bringing:itemVal, details:details };
   }
+
   function preselect(ctx, category, bringing, details){
     resetChips(ctx);
     if(!bringing) return;
-    var chips = $('chips-'+ctx).querySelectorAll('.bring-chip'), matched=false;
-    chips.forEach(function(c){ if(c.getAttribute('data-val')===bringing && !c.classList.contains('full')){ c.classList.add('selected'); selected[ctx]=c; matched=true; } });
+    var chips = $('chips-'+ctx).querySelectorAll('.bring-chip');
+    var matched = false;
+    chips.forEach(function(c){ 
+      if(c.getAttribute('data-val')===bringing && !c.classList.contains('full')){ 
+        selectedItems[ctx][bringing] = details||'';
+        c.classList.add('selected');
+        matched = true; 
+      } 
+    });
     if(!matched){
-      var other=$('chip-other-'+ctx); other.classList.add('selected'); selected[ctx]=other;
+      var other=$('chip-other-'+ctx);
+      selectedItems[ctx]['__other__'] = details||'';
+      other.classList.add('selected');
       $('custom-wrap-'+ctx).hidden=false; $('custom-'+ctx).value=bringing;
     }
-    $('details-wrap-'+ctx).hidden=false; $('details-'+ctx).value=details||'';
+    renderChipWrappers(ctx);
   }
 
   // ---- attending + dog toggles ----
